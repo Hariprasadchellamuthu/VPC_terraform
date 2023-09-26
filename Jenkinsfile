@@ -1,8 +1,8 @@
 pipeline {
     parameters {
         string(name: 'vpcCidrBlock', defaultValue: '10.0.0.0/16', description: 'VPC CIDR block')
-        int(name: 'publicSubnetCount', defaultValue: 2, description: 'Number of public subnets')
-        int(name: 'privateSubnetCount', defaultValue: 2, description: 'Number of private subnets')
+        parameter(name: 'publicSubnetCount', type: 'int', defaultValue: 2, description: 'Number of public subnets')
+        parameter(name: 'privateSubnetCount', type: 'int', defaultValue: 2, description: 'Number of private subnets')
         string(name: 'publicSubnetCidrBlock', defaultValue: '10.0.1.0/24', description: 'CIDR block for public subnets')
         string(name: 'privateSubnetCidrBlock', defaultValue: '10.0.2.0/24', description: 'CIDR block for private subnets')
     }
