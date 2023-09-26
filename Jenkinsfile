@@ -18,7 +18,7 @@ pipeline {
             steps {
 			   script {
 				   dir("terraform") {
-					   git "https://github.com/Hariprasadchellamuthu/Terraform-Jenkins.git"
+					   git "https://github.com/Hariprasadchellamuthu/VPC_terraform.git"
                    }           
 				}
 			}
