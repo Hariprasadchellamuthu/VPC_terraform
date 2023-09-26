@@ -1,66 +1,50 @@
 pipeline {
-
     parameters {
-        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
-        choice(name: 'awsService', choices: ['EC2', 'S3'], description: 'Select AWS Service to Create')
-    } 
+        string(name: 'vpcCidrBlock', defaultValue: '10.0.0.0/16', description: 'VPC CIDR block')
+        int(name: 'publicSubnetCount', defaultValue: 2, description: 'Number of public subnets')
+        int(name: 'privateSubnetCount', defaultValue: 2, description: 'Number of private subnets')
+        string(name: 'publicSubnetCidrBlock', defaultValue: '10.0.1.0/24', description: 'CIDR block for public subnets')
+        string(name: 'privateSubnetCidrBlock', defaultValue: '10.0.2.0/24', description: 'CIDR block for private subnets')
+    }
     environment {
         AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
     }
 
-   agent  any
+    agent any
+
     stages {
-        stage('checkout') {
+        stage('Checkout') {
             steps {
-                 script{
-                     def repoUrl = ''
-                     def subDirectory = ''
-                    if (params.awsService == 'EC2') {
-                        repoUrl = "https://github.com/Hariprasadchellamuthu/terraorm-s3-ec2-2.git"
-                        subDirectory = 'ec2'
-                    } else if (params.awsService == 'S3') {
-                               repoUrl =  "https://github.com/Hariprasadchellamuthu/terraorm-s3-ec2-2.git"
-                               subDirectory = 's3' 
-                    } else {
-                                error("Invalid AWS service selection")
-                            }
-                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'YOUR_CREDENTIALS_ID', url: repoUrl]]])
-                     dir(subDirectory) {
-                        }
-                    }
-                }
-            }
-
-        stage('Plan') {
-            steps {
-                sh "terraform init"
-                sh "terraform plan -out tfplan"
-                sh "terraform show -no-color tfplan > tfplan.txt"
-                sh "ls -l" 
-            }
+			   script {
+				   dir("terraform") {
+					   git "https://github.com/Hariprasadchellamuthu/Terraform-Jenkins.git"
+                   }           
+				}
+			}
         }
-        stage('Approval') {
-           when {
-               not {
-                   equals expected: true, actual: params.autoApprove
-               }
-           }
 
-           steps {
-               script {
-                    def plan = readFile 'tfplan.txt'
-                    input message: "Do you want to apply the plan?",
-                    parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
-               }
-           }
-       }
-
-        stage('Apply') {
+        stage('Terraform Init and Apply') {
             steps {
-                sh "terraform apply -input=false tfplan"
+                script {
+                    def vpcCidr = params.vpcCidrBlock
+                    def publicSubnetCount = params.publicSubnetCount
+                    def privateSubnetCount = params.privateSubnetCount
+                    def publicSubnetCidr = params.publicSubnetCidrBlock
+                    def privateSubnetCidr = params.privateSubnetCidrBlock
+
+                    // Set environment variables for Terraform
+                    env.VPC_CIDR = vpcCidr
+                    env.PUBLIC_SUBNET_COUNT = publicSubnetCount
+                    env.PRIVATE_SUBNET_COUNT = privateSubnetCount
+                    env.PUBLIC_SUBNET_CIDR = publicSubnetCidr
+                    env.PRIVATE_SUBNET_CIDR = privateSubnetCidr
+
+                    // Run Terraform commands (init and apply)
+                    sh 'terraform init'
+                    sh 'terraform apply -auto-approve'
+                }
             }
         }
     }
-
-  }
+}
