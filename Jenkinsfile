@@ -1,8 +1,8 @@
 pipeline {
     parameters {
         string(name: 'vpcCidrBlock', defaultValue: '10.0.0.0/16', description: 'VPC CIDR block')
-        parameter(name: 'publicSubnetCount', type: 'int', defaultValue: 2, description: 'Number of public subnets')
-        parameter(name: 'privateSubnetCount', type: 'int', defaultValue: 2, description: 'Number of private subnets')
+        string(name: 'publicSubnetCount', defaultValue: '2', description: 'Number of public subnets (as string)')
+        string(name: 'privateSubnetCount', defaultValue: '2', description: 'Number of private subnets (as string)')
         string(name: 'publicSubnetCidrBlock', defaultValue: '10.0.1.0/24', description: 'CIDR block for public subnets')
         string(name: 'privateSubnetCidrBlock', defaultValue: '10.0.2.0/24', description: 'CIDR block for private subnets')
     }
@@ -27,8 +27,10 @@ pipeline {
             steps {
                 script {
                     def vpcCidr = params.vpcCidrBlock
-                    def publicSubnetCount = params.publicSubnetCount
-                    def privateSubnetCount = params.privateSubnetCount
+                    def publicSubnetCount = params.publicSubnetCount.toInteger()
+                    def privateSubnetCount = params.privateSubnetCount.toInteger()
+		    echo "Public Subnet Count as Integer: ${publicSubnetCountInt}"
+		    echo "Private Subnet Count as Integer: ${privateSubnetCountInt}"
                     def publicSubnetCidr = params.publicSubnetCidrBlock
                     def privateSubnetCidr = params.privateSubnetCidrBlock
 
