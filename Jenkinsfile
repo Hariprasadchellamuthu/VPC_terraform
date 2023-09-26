@@ -12,17 +12,16 @@ pipeline {
     }
 
     agent any
-
     stages {
         stage('Checkout') {
-            steps {
-			   script {
-				   dir("terraform") {
-					   git "https://github.com/Hariprasadchellamuthu/VPC_terraform.git"
-                   }           
-				}
-			}
-        }
+		steps {
+		   script {
+		       dir("terraform") {
+			   git "https://github.com/Hariprasadchellamuthu/Terraform-Jenkins.git"
+		       }
+		   }
+	      }
+	}
 
         stage('Terraform Init and Apply') {
             steps {
