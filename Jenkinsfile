@@ -29,7 +29,12 @@ pipeline {
         stage('Plan') {
             steps {
                 sh 'pwd;cd terraform/ ; terraform init'
-                sh 'pwd;cd terraform/ ; terraform plan -out tfplan -var 'instance_count=${params.instanceCount}' -var 'instance_type=${params.instanceSize}'' // You can include your var settings here
+                sh 'pwd;cd terraform/ ; terraform plan -out tfplan \\
+                    -var 'vpc_cidr_block=${params.vpcCidrBlock}' \\
+                    -var 'public_subnet_count=${params.publicSubnetCount}' \\
+                    -var 'private_subnet_count=${params.privateSubnetCount}' \\
+                    -var 'public_subnet_cidr_blocks=${params.publicSubnetCidrBlock}' \\
+                    -var 'private_subnet_cidr_blocks=${params.privateSubnetCidrBlock}'                
                 sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
             }
         }
