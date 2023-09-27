@@ -28,16 +28,28 @@ pipeline {
 
         stage('Plan') {
             steps {
-                sh 'pwd;cd terraform/ ; terraform init'
-                sh "pwd;cd terraform/ ; terraform plan -out tfplan \\
-                    -var 'vpc_cidr_block=${params.vpcCidrBlock}' \\
-                    -var 'public_subnet_count=${params.publicSubnetCount}' \\
-                    -var 'private_subnet_count=${params.privateSubnetCount}' \\
-                    -var 'public_subnet_cidr_blocks=${params.publicSubnetCidrBlock}' \\
-                    -var 'private_subnet_cidr_blocks=${params.privateSubnetCidrBlock}' "               
-                sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
-            }
+                script {
+                    def vpcCidrBlock = params.vpcCidrBlock
+                    def publicSubnetCount = params.publicSubnetCount
+                    def privateSubnetCount = params.privateSubnetCount
+                    def publicSubnetCidrBlock = params.publicSubnetCidrBlock
+                    def privateSubnetCidrBlock = params.privateSubnetCidrBlock
+
+                    sh """
+                        pwd
+                        cd terraform/
+                        terraform init
+                        terraform plan -out tfplan
+                            -var 'vpc_cidr_block=${vpcCidrBlock}'
+                            -var 'public_subnet_count=${publicSubnetCount}'
+                            -var 'private_subnet_count=${privateSubnetCount}'
+                            -var 'public_subnet_cidr_blocks=${publicSubnetCidrBlock}'
+                            -var 'private_subnet_cidr_blocks=${privateSubnetCidrBlock}'                
+                        terraform show -no-color tfplan > tfplan.txt
+                        """
         }
+    }
+}
 
         stage('Approval') {
             when {
