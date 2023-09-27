@@ -29,7 +29,7 @@ pipeline {
         stage('Plan') {
             steps {
                 sh 'pwd;cd terraform/ ; terraform init'
-                sh 'pwd;cd terraform/ ; terraform plan -out tfplan' // You can include your var settings here
+                sh 'pwd;cd terraform/ ; terraform plan -out tfplan -var 'instance_count=${params.instanceCount}' -var 'instance_type=${params.instanceSize}'' // You can include your var settings here
                 sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
             }
         }
