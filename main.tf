@@ -2,11 +2,21 @@ provider "aws" {
   region = "us-east-1" # Change to your desired region
 }
 
-variable "vpc_cidr_block" {}
-variable "public_subnet_count" {}
-variable "private_subnet_count" {}
-variable "public_subnet_cidr_blocks" {}
-variable "private_subnet_cidr_blocks" {}
+variable "vpc_cidr_block" {
+  default = "10.0.0.0/16"
+}
+variable "public_subnet_count" {
+  default = 2
+}
+variable "private_subnet_count" {
+  default = 2
+}
+variable "public_subnet_cidr_blocks" {
+  default = "10.0.1.0/24"
+}
+variable "private_subnet_cidr_blocks" {
+   default = "10.0.2.0/24"   
+}
 
 resource "aws_vpc" "my_vpc" {
   cidr_block = var.vpc_cidr_block
