@@ -47,9 +47,9 @@ pipeline {
                             -var 'private_subnet_cidr_blocks=${privateSubnetCidrBlock}'                
                         terraform show -no-color tfplan > tfplan.txt
                         """
-        }
-    }
-}
+                        }
+                    }
+                }
 
         stage('Approval') {
             when {
