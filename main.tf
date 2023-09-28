@@ -29,7 +29,7 @@ resource "aws_internet_gateway" "my_igw" {
 resource "aws_subnet" "public_subnets" {
   count = var.public_subnet_count
   vpc_id     = aws_vpc.my_vpc.id
-  cidr_block = element(var.public_subnet_cidr_blocks, count.index)
+  cidr_block = var.public_subnet_cidr_blocks
   availability_zone = "us-east-1a" # Change to your desired availability zone
   map_public_ip_on_launch = true
 }
@@ -37,6 +37,6 @@ resource "aws_subnet" "public_subnets" {
 resource "aws_subnet" "private_subnets" {
   count = var.private_subnet_count
   vpc_id     = aws_vpc.my_vpc.id
-  cidr_block = element(var.private_subnet_cidr_blocks, count.index)
+  cidr_block = var.private_subnet_cidr_blocks
   availability_zone = "us-east-1b" # Change to your desired availability zone
 }
