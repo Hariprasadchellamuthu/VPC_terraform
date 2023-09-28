@@ -1,6 +1,7 @@
 pipeline {
     parameters {
         booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
+        choice(name: 'action', choices: ['Apply', 'Destroy'], description: 'Choose whether to apply or destroy the VPC.')
         string(name: 'vpcCidrBlock', defaultValue: '10.0.0.0/16', description: 'VPC CIDR block')
         string(name: 'publicSubnetCount', defaultValue: '2', description: 'Number of public subnets (as string)')
         string(name: 'privateSubnetCount', defaultValue: '2', description: 'Number of private subnets (as string)')
@@ -60,14 +61,26 @@ pipeline {
             }
         }
 
-        stage('Apply') {
+        stage('Terraform Apply or Destroy') {
             when {
-                expression {
-                    return params.autoApprove || currentBuild.rawBuild.resultIsBetterOrEqualTo('SUCCESS')
-                }
+                expression { params.action == 'Apply' }
             }
             steps {
-                sh "pwd;cd terraform/ ; terraform apply -input=false tfplan"
+                script {
+                    dir('terraform') {
+                        sh 'terraform apply -input=false tfplan'
+                    }
+                }
+            }
+            when {
+                expression { params.action == 'Destroy' }
+            }
+            steps {
+                script {
+                    dir('terraform') {
+                        sh 'terraform destroy -auto-approve'
+                    }
+                }
             }
         }
     }
