@@ -40,11 +40,11 @@ pipeline {
                         cd terraform/
                         terraform init
                         terraform plan -out tfplan
-                            -var 'vpc_cidr_block=${vpcCidrBlock}'
-                            -var 'public_subnet_count=${publicSubnetCount}'
-                            -var 'private_subnet_count=${privateSubnetCount}'
-                            -var 'public_subnet_cidr_blocks=${publicSubnetCidrBlock}'
-                            -var 'private_subnet_cidr_blocks=${privateSubnetCidrBlock}'                
+                            -var='vpc_cidr_block=${vpcCidrBlock}'
+                            -var='public_subnet_count=${publicSubnetCount}'
+                            -var='private_subnet_count=${privateSubnetCount}'
+                            -var='public_subnet_cidr_blocks=${publicSubnetCidrBlock}'
+                            -var='private_subnet_cidr_blocks=${privateSubnetCidrBlock}'                
                         terraform show -no-color tfplan > tfplan.txt
                         """
                         }
