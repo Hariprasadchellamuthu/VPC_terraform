@@ -62,23 +62,16 @@ pipeline {
         }
 
         stage('Terraform Apply or Destroy') {
-            when {
-                expression { params.action == 'Apply' }
-            }
             steps {
                 script {
                     dir('terraform') {
-                        sh 'terraform apply -input=false tfplan'
-                    }
-                }
-            }
-            when {
-                expression { params.action == 'Destroy' }
-            }
-            steps {
-                script {
-                    dir('terraform') {
-                        sh 'terraform destroy -auto-approve'
+                        if (params.action == 'Apply') {
+                            sh 'terraform apply -input=false tfplan'
+                        } else if (params.action == 'Destroy') {
+                            sh 'terraform destroy -auto-approve'
+                        } else {
+                            error "Invalid action: ${params.action}. Please choose 'Apply' or 'Destroy'."
+                        }
                     }
                 }
             }
