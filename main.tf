@@ -25,6 +25,10 @@ variable "private_subnet_cidr_blocks" {
 
 resource "aws_vpc" "my_vpc" {
   cidr_block = var.vpc_cidr_block
+
+  tags = {
+    Name = "VPC_Pro"
+  }
 }
 
 resource "aws_internet_gateway" "my_igw" {
