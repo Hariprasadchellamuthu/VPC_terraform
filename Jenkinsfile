@@ -7,6 +7,7 @@ pipeline {
         string(name: 'privateSubnetCount', defaultValue: '2', description: 'Number of private subnets (as string)')
         string(name: 'publicSubnetCidrBlock', defaultValue: '10.0.1.0/24', description: 'CIDR block for public subnets')
         string(name: 'privateSubnetCidrBlock', defaultValue: '10.0.2.0/24', description: 'CIDR block for private subnets')
+        string(name: 'availability_zone', defaultValue: '2', description: 'Number of Availability Zone (as string)')
     }
 
     environment {
@@ -39,7 +40,8 @@ pipeline {
                             -var='public_subnet_count=${params.publicSubnetCount}' \
                             -var='private_subnet_count=${params.privateSubnetCount}' \
                             -var='public_subnet_cidr_blocks=${params.publicSubnetCidrBlock}' \
-                            -var='private_subnet_cidr_blocks=${params.privateSubnetCidrBlock}'              
+                            -var='private_subnet_cidr_blocks=${params.privateSubnetCidrBlock}' \
+                            -var='azs=${params.availability_zone}'
                         terraform show -no-color tfplan > tfplan.txt
                         """
 
