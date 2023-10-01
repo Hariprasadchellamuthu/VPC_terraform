@@ -68,45 +68,62 @@ resource "aws_subnet" "private_subnets" {
  }
 }
 
-# Create a route table for the public subnet
+# Create a route table for the public subnets
 resource "aws_route_table" "public_route_table" {
+  count  = var.public_subnet_count
   vpc_id = aws_vpc.my_vpc.id
+
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.my_igw.id
   }
+
+  tags = {
+    Name = "Public Subnet Route Table ${count.index + 1}"
+  }
 }
 
 
-# Associate the public route table with the public subnet
+# Associate each public subnet with its route table
 resource "aws_route_table_association" "public_subnet_association" {
-  subnet_id      = aws_subnet.public_subnet.id
-  route_table_id = aws_route_table.public_route_table.id
+  count        = var.public_subnet_count
+  subnet_id    = aws_subnet.public_subnets[count.index].id
+  route_table_id = aws_route_table.public_route_table[count.index].id
 }
 
-# Create a NAT gateway
+# Create a NAT gateway for each public subnet
 resource "aws_nat_gateway" "my_nat_gateway" {
-  allocation_id = aws_eip.my_eip.id
-  subnet_id     = aws_subnet.public_subnet.id
+  count         = var.public_subnet_count
+  allocation_id = aws_eip.my_eip[count.index].id
+  subnet_id     = aws_subnet.public_subnets[count.index].id
 }
 
-# Create an Elastic IP for the NAT gateway
-resource "aws_eip" "my_eip" {}
+# Create an Elastic IP for each NAT gateway
+resource "aws_eip" "my_eip" {
+  count = var.public_subnet_count
+}
 
-# Create a route table for the private subnet (for routing through the NAT gateway)
+# Create a route table for the private subnets (for routing through the NAT gateways)
 resource "aws_route_table" "private_route_table" {
+  count  = var.private_subnet_count
   vpc_id = aws_vpc.my_vpc.id
+
+  tags = {
+    Name = "Private Subnet Route Table ${count.index + 1}"
+  }
 }
 
-# Add a route to the private route table to route traffic through the NAT gateway
+# Add a route to each private subnet route table to route traffic through the corresponding NAT gateway
 resource "aws_route" "private_route" {
-  route_table_id         = aws_route_table.private_route_table.id
+  count                  = var.private_subnet_count
+  route_table_id         = aws_route_table.private_route_table[count.index].id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.my_nat_gateway.id
+  nat_gateway_id         = aws_nat_gateway.my_nat_gateway[count.index].id
 }
 
-# Associate the private route table with the private subnet
+# Associate each private subnet with its route table
 resource "aws_route_table_association" "private_subnet_association" {
-  subnet_id      = aws_subnet.private_subnet.id
-  route_table_id = aws_route_table.private_route_table.id
+  count        = var.private_subnet_count
+  subnet_id    = aws_subnet.private_subnets[count.index].id
+  route_table_id = aws_route_table.private_route_table[count.index].id
 }
