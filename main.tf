@@ -45,22 +45,22 @@ resource "aws_internet_gateway" "my_igw" {
   vpc_id = aws_vpc.my_vpc.id
 }
 
-resource "random_cidr_block" "public_subnet_cidr" {
+data "random_cidr" "public_subnet_cidr" {
   count = var.public_subnet_count
-  base_cidr_block = var.vpc_cidr_block
-  prefix_list = [24]  # Assuming /24 subnets
+  base_cidr = var.vpc_cidr_block
+  prefix_bits = 24 # Assuming /24 subnets
 }
 
-resource "random_cidr_block" "private_subnet_cidr" {
+data "random_cidr" "private_subnet_cidr" {
   count = var.private_subnet_count
-  base_cidr_block = var.vpc_cidr_block
-  prefix_list = [24]  # Assuming /24 subnets
+  base_cidr = var.vpc_cidr_block
+  prefix_bits = 24 # Assuming /24 subnets
 }
 
 resource "aws_subnet" "public_subnets" {
  count             = var.public_subnet_count
  vpc_id            = aws_vpc.my_vpc.id
- cidr_block        = random_cidr_block.public_subnet_cidr[count.index]
+ cidr_block        = data.random_cidr.public_subnet_cidr[count.index].cidr_block
  availability_zone = element(var.azs, count.index)
  
  tags = {
@@ -71,7 +71,7 @@ resource "aws_subnet" "public_subnets" {
 resource "aws_subnet" "private_subnets" {
  count             = var.private_subnet_count
  vpc_id            = aws_vpc.my_vpc.id
- cidr_block        = random_cidr_block.private_subnet_cidr[count.index]
+ cidr_block        = data.random_cidr.private_subnet_cidr[count.index].cidr_block]
  availability_zone = element(var.azs, count.index)
  
  tags = {
