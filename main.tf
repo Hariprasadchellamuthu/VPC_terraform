@@ -19,11 +19,11 @@ variable "private_subnet_count" {
 }
 
 
-variable "public_subnet_cidr_blocks" {
+variable "public_subnet_cidrs" {
   type        = list(string)
   default = ["10.0.1.0/24"]
 }
-variable "private_subnet_cidr_blocks" {
+variable "private_subnet_cidrs" {
    type        = list(string)
    default = ["10.0.4.0/24"]  
 }
