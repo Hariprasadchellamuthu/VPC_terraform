@@ -121,7 +121,7 @@ resource "aws_route_table" "private_route_table" {
 
 # Add a route to each private subnet route table to route traffic through the corresponding NAT gateway
 resource "aws_route" "private_route" {
-  count                  = var.public_routetable_count
+  count                  = var.private_routetable_count
   route_table_id         = aws_route_table.private_route_table[count.index].id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.my_nat_gateway[count.index].id
