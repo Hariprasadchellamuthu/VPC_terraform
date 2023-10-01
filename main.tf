@@ -12,6 +12,12 @@ variable "public_subnet_count" {
   default     = 2
 }
 
+variable "private_subnet_count" {
+  type        = number
+  description = "Number of public subnets"
+  default     = 2
+}
+
 variable "public_routetable_count" {
   type        = number
   description = "Number of public route table"
