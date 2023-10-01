@@ -12,10 +12,16 @@ variable "public_subnet_count" {
   default     = 2
 }
 
-variable "private_subnet_count" {
+variable "public_routetable_count" {
   type        = number
-  description = "Number of private subnets"
-  default     = 2
+  description = "Number of public route table"
+  default     = 1
+}
+
+variable "private_routetable_count" {
+  type        = number
+  description = "Number of private route table"
+  default     = 1
 }
 
 
@@ -70,7 +76,7 @@ resource "aws_subnet" "private_subnets" {
 
 # Create a route table for the public subnets
 resource "aws_route_table" "public_route_table" {
-  count  = var.public_subnet_count
+  count  = var.public_routetable_count
   vpc_id = aws_vpc.my_vpc.id
 
   route {
@@ -115,7 +121,7 @@ resource "aws_route_table" "private_route_table" {
 
 # Add a route to each private subnet route table to route traffic through the corresponding NAT gateway
 resource "aws_route" "private_route" {
-  count                  = var.private_subnet_count
+  count                  = var.public_routetable_count
   route_table_id         = aws_route_table.private_route_table[count.index].id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.my_nat_gateway[count.index].id
