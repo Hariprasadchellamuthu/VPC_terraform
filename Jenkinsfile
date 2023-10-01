@@ -5,6 +5,8 @@ pipeline {
         string(name: 'vpcCidrBlock', defaultValue: '10.0.0.0/16', description: 'VPC CIDR block')
         string(name: 'publicSubnetCount', defaultValue: '2', description: 'Number of public subnets (as string)')
         string(name: 'privateSubnetCount', defaultValue: '2', description: 'Number of private subnets (as string)')
+        string(name: 'publicSubnetCidrBlock', defaultValue: '10.0.1.0/24', description: 'CIDR block for public subnets')
+        string(name: 'privateSubnetCidrBlock', defaultValue: '10.0.2.0/24', description: 'CIDR block for private subnets')
     }
 
     environment {
@@ -36,6 +38,8 @@ pipeline {
                             -var='vpc_cidr_block=${params.vpcCidrBlock}' \
                             -var='public_subnet_count=${params.publicSubnetCount}' \
                             -var='private_subnet_count=${params.privateSubnetCount}' \
+                            -var='public_subnet_cidrs=["${params.publicSubnetCidrBlock}"]' \
+                            -var='private_subnet_cidrs=["${params.privateSubnetCidrBlock}"]' 
                         terraform show -no-color tfplan > tfplan.txt
                         """
 
