@@ -39,8 +39,8 @@ pipeline {
                             -var='vpc_cidr_block=${params.vpcCidrBlock}' \
                             -var='public_subnet_count=${params.publicSubnetCount}' \
                             -var='private_subnet_count=${params.privateSubnetCount}' \
-                            -var='public_subnet_cidr_blocks=["${params.publicSubnetCidrBlock}"]' \
-                            -var='private_subnet_cidr_blocks=["${params.privateSubnetCidrBlock}"]' \
+                            -var='public_subnet_cidrs=["${params.publicSubnetCidrBlock}"]' \
+                            -var='private_subnet_cidrs=["${params.privateSubnetCidrBlock}"]' \
                             -var='azs=${params.availability_zone}'
                         terraform show -no-color tfplan > tfplan.txt
                         """
