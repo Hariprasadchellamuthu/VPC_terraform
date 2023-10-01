@@ -105,7 +105,7 @@ resource "aws_route_table_association" "public_subnet_association" {
 
 # Create a NAT gateway for each public subnet
 resource "aws_nat_gateway" "my_nat_gateway" {
-  count         = var.public_subnet_count
+  count         = 1
   allocation_id = aws_eip.my_eip[count.index].id
   subnet_id     = aws_subnet.public_subnets[count.index].id
 }
@@ -117,7 +117,7 @@ resource "aws_eip" "my_eip" {
 
 # Create a route table for the private subnets (for routing through the NAT gateways)
 resource "aws_route_table" "private_route_table" {
-  count  = 1
+  count  = var.private_routetable_count
   vpc_id = aws_vpc.my_vpc.id
 
   tags = {
