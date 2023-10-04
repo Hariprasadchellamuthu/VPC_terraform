@@ -112,7 +112,7 @@ resource "aws_nat_gateway" "my_nat_gateway" {
 
 # Create an Elastic IP for each NAT gateway
 resource "aws_eip" "my_eip" {
-  count = 1
+  count = var.private_routetable_count
 }
 
 # Create a route table for the private subnets (for routing through the NAT gateways)
