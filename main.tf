@@ -55,7 +55,7 @@ resource "aws_subnet" "private_subnets" {
  availability_zone = element(var.azs, count.index)
  map_public_ip_on_launch = false 
  tags = {
-   Name = "${element(var.availability_zones, count.inndex}}-private-subnet"
+   Name = "${element(var.availability_zones, count.index}}-private-subnet"
  }
 }
 
