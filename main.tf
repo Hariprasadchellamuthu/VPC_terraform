@@ -6,39 +6,17 @@ variable "vpc_cidr_block" {
   type        = string
   default = "10.0.0.0/16"
 }
-variable "public_subnet_count" {
-  type        = number
-  description = "Number of public subnets"
-  default     = 2
-}
-
-variable "private_subnet_count" {
-  type        = number
-  description = "Number of public subnets"
-  default     = 2
-}
-
-variable "public_routetable_count" {
-  type        = number
-  description = "Number of public route table"
-  default     = 1
-}
-
-variable "private_routetable_count" {
-  type        = number
-  description = "Number of private route table"
-  default     = 1
-}
-
 
 variable "public_subnet_cidrs" {
   type        = list(string)
   default = ["10.0.1.0/24"]
 }
+
 variable "private_subnet_cidrs" {
    type        = list(string)
    default = ["10.0.4.0/24"]  
 }
+
 variable "azs" {
  type        = list(string)
  description = "Availability Zones"
@@ -59,83 +37,80 @@ resource "aws_internet_gateway" "my_igw" {
 
 
 resource "aws_subnet" "public_subnets" {
- count             = var.public_subnet_count
+ count             = length(var.public_subnet_cidr)
  vpc_id            = aws_vpc.my_vpc.id
- cidr_block        = cidrsubnet(var.vpc_cidr_block, 8, count.index) 
+ cidr_block        = element(var.public_subnet_cidrs, count.index)
  availability_zone = element(var.azs, count.index)
+ map_public_ip_on_launch = true
  
  tags = {
-   Name = "Public Subnet ${count.index + 1}"
+   Name = "${element(var.availability_zones, count.inndex}}-public-subnet"
  }
 }
 
 resource "aws_subnet" "private_subnets" {
- count             = var.private_subnet_count
+ count             = length(var.private_subnet_cidrs)
  vpc_id            = aws_vpc.my_vpc.id
- cidr_block        = cidrsubnet(var.vpc_cidr_block, 8, count.index + 100)
+ cidr_block        = element(var.private_subnet_cidrs, count.index)
  availability_zone = element(var.azs, count.index)
- 
+ map_public_ip_on_launch = false 
  tags = {
-   Name = "Private Subnet ${count.index + 1}"
+   Name = "${element(var.availability_zones, count.inndex}}-private-subnet"
  }
 }
 
 # Create a route table for the public subnets
-resource "aws_route_table" "public_route_table" {
-  #count  = var.public_routetable_count
+resource "aws_route_table" "public" {
   vpc_id = aws_vpc.my_vpc.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.my_igw.id
-  }
-
   tags = {
-    Name = "Public Subnet Route Table ${count.index + 1}"
+    Name = "private-route-table"
   }
 }
 
 
 # Associate each public subnet with its route table
 resource "aws_route_table_association" "public_subnet_association" {
-  #count        = var.public_subnet_count
-  subnet_id    = aws_subnet.public_subnets[count.index].id
-  route_table_id = aws_route_table.public_route_table[count.index].id
+  count        = length(var.public_subnets_cidrs)
+  subnet_id    = element(aws_subnet.public_subnets.*.id, count.index)
+  route_table_id = aws_route_table.public.id
 }
 
 # Create a NAT gateway for each public subnet
 resource "aws_nat_gateway" "my_nat_gateway" {
-  count         = var.private_subnet_count
   allocation_id = aws_eip.my_eip[count.index].id
-  subnet_id     = aws_subnet.public_subnets[count.index].id
+  subnet_id     = element(aws_subnet.public_subnets.*.id, 0)
+
+tags = {
+  Name = "nat"
+  }
 }
 
 # Create an Elastic IP for each NAT gateway
 resource "aws_eip" "my_eip" {
-  count = var.private_routetable_count
+  vpc      = true
+  depends_on = [aws_internet_gateway.id]
 }
 
 # Create a route table for the private subnets (for routing through the NAT gateways)
-resource "aws_route_table" "private_route_table" {
-  count  = var.private_routetable_count
+resource "aws_route_table" "private" {
   vpc_id = aws_vpc.my_vpc.id
 
   tags = {
-    Name = "Private Subnet Route Table ${count.index + 1}"
+    Name = "private-route-table"
   }
 }
 
 # Add a route to each private subnet route table to route traffic through the corresponding NAT gateway
-resource "aws_route" "private_route" {
-  #count                  = var.private_subnet_count
-  route_table_id         = aws_route_table.private_route_table[count.index].id
+resource "aws_route" "private_nat_gateway" {
+  route_table_id         = aws_route_table.private.id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.my_nat_gateway[count.index].id
+  nat_gateway_id         = aws_nat_gateway.nat.id
 }
 
 # Associate each private subnet with its route table
 resource "aws_route_table_association" "private_subnet_association" {
-  #count        = var.private_subnet_count
-  subnet_id    = aws_subnet.private_subnets[count.index].id
-  route_table_id = aws_route_table.private_route_table[count.index].id
+  count        = length(var.private_subnet_cidr)
+  subnet_id    = element(aws_subnet.private_subnets.*.id, count.index)
+  route_table_id = aws_route_table.private.id
 }
