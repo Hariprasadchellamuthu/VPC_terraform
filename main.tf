@@ -44,7 +44,7 @@ resource "aws_subnet" "public_subnets" {
  map_public_ip_on_launch = true
  
  tags = {
-   Name = "${element(var.azs, count.index}}-public-subnet"
+   Name = "${element(var.azs, count.index)}}-public-subnet"
  }
 }
 
