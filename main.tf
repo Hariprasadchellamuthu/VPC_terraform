@@ -37,7 +37,7 @@ resource "aws_internet_gateway" "my_igw" {
 
 
 resource "aws_subnet" "public_subnets" {
- count             = length(var.public_subnet_cidr)
+ count             = length(var.public_subnet_cidrs)
  vpc_id            = aws_vpc.my_vpc.id
  cidr_block        = element(var.public_subnet_cidrs, count.index)
  availability_zone = element(var.azs, count.index)
@@ -110,7 +110,7 @@ resource "aws_route" "private_nat_gateway" {
 
 # Associate each private subnet with its route table
 resource "aws_route_table_association" "private_subnet_association" {
-  count        = length(var.private_subnet_cidr)
+  count        = length(var.private_subnet_cidrs)
   subnet_id    = element(aws_subnet.private_subnets.*.id, count.index)
   route_table_id = aws_route_table.private.id
 }
