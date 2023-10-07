@@ -31,8 +31,9 @@ resource "aws_vpc" "my_vpc" {
   }
 }
 
-resource "aws_internet_gateway" "id" {
+resource "aws_internet_gateway" "ik" {
   vpc_id = aws_vpc.my_vpc.id
+  
 }
 
 
@@ -64,7 +65,7 @@ resource "aws_route_table" "public" {
   vpc_id = aws_vpc.my_vpc.id
 
   tags = {
-    Name = "private-route-table"
+    Name = "public-route-table"
   }
 }
 
@@ -100,6 +101,13 @@ resource "aws_route_table" "private" {
     Name = "private-route-table"
   }
 }
+
+#Route for Internet Gateway:
+
+resource "aws_route" "public_internet_gateway" {
+  route_table_id          = aws_route_table.public.id
+  destination_cidr_block  = "0.0.0.0/0"
+  gateway_id              = aws_internet_gateway.ik.id
 
 # Add a route to each private subnet route table to route traffic through the corresponding NAT gateway
 resource "aws_route" "private_nat_gateway" {
