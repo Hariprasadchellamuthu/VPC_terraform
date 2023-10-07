@@ -29,8 +29,8 @@ pipeline {
             steps {
                 script {
                     def vpcCidrBlock = params.vpcCidrBlock
-                    def publicSubnetCidrBlock = params.publicSubnetCidrBlock.split(" "," ")
-                    def privateSubnetCidrBlock = params.privateSubnetCidrBlock.split(" "," ")
+                    def publicSubnetCidrBlock = params.publicSubnetCidrBlock.split(',')
+                    def privateSubnetCidrBlock = params.privateSubnetCidrBlock.split(',')
                     sh """
                         pwd
                         cd terraform/
