@@ -41,7 +41,7 @@ pipeline {
                             -var="private_subnet_cidrs=${privateSubnetCidrBlock}"
                         terraform show -no-color tfplan > tfplan.txt
                         """
-
+                        }
                     }
                 }
 
