@@ -27,18 +27,26 @@ pipeline {
 
         stage('Plan') {
             steps {
-  
+                script {
+                    def vpcCidrBlock = params.vpcCidrBlock
+                    def publicSubnetCidrBlocks = params.publicSubnetCidrBlock.split(',').collect { it.trim() }
+                    def privateSubnetCidrBlocks = params.privateSubnetCidrBlock.split(',').collect { it.trim() }
+            
+                    // Convert CIDR blocks to a properly formatted string for Terraform
+                    def formattedPublicSubnetCidrs = publicSubnetCidrBlocks.join('", "')
+                    def formattedPrivateSubnetCidrs = privateSubnetCidrBlocks.join('", "')
+            
                     sh """
                         pwd
                         cd terraform/
                         terraform init
                         terraform plan -out tfplan \
-                            -var="vpc_cidr_block=${params.vpcCidrBlock}" \
-                            -var="public_subnet_cidrs=[${publicSubnetCidrBlock.collect { '\"' + it.trim() + '\"' }.join(', ')}]" \
-                            -var="private_subnet_cidrs=[${privateSubnetCidrBlock.collect { '\"' + it.trim() + '\"' }.join(', ')}]"
+                            -var="vpc_cidr_block=${vpcCidrBlock}" \
+                            -var="public_subnet_cidrs=[\"${formattedPublicSubnetCidrs}\"]" \
+                            -var="private_subnet_cidrs=[\"${formattedPrivateSubnetCidrs}\"]"
                         terraform show -no-color tfplan > tfplan.txt
-                        """
-                
+                    """
+                        }             
                     }
                 }
 
