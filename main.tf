@@ -90,7 +90,7 @@ tags = {
 # Create an Elastic IP for each NAT gateway
 resource "aws_eip" "my_eip" {
   domain     = "vpc"
-  depends_on = [aws_internet_gateway.id]
+  depends_on = [aws_internet_gateway.ik]
 }
 
 # Create a route table for the private subnets (for routing through the NAT gateways)
