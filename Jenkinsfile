@@ -3,8 +3,8 @@ pipeline {
         booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
         choice(name: 'action', choices: ['Apply', 'Destroy'], description: 'Choose whether to apply or destroy the VPC.')
         string(name: 'vpcCidrBlock', defaultValue: '10.0.0.0/16', description: 'VPC CIDR block')
-        string(name: 'publicSubnetCidrBlock', defaultValue: '10.0.1.0/24', '10.0.2.0/24', description: 'CIDR block for public subnets')
-        string(name: 'privateSubnetCidrBlock', defaultValue: '10.0.3.0/24', '10.0.4.0/24', description: 'CIDR block for private subnets')
+        string(name: 'publicSubnetCidrBlock', defaultValue: '10.0.1.0/24, 10.0.2.0/24', description: 'CIDR block for public subnets')
+        string(name: 'privateSubnetCidrBlock', defaultValue: '10.0.3.0/24, 10.0.4.0/24', description: 'CIDR block for private subnets')
     }
 
     environment {
@@ -34,8 +34,8 @@ pipeline {
                         terraform init
                         terraform plan -out tfplan \
                             -var="vpc_cidr_block=${params.vpcCidrBlock}" \
-                            -var="public_subnet_cidrs=${params.publicSubnetCidrBlock.split(',').collect { it.trim() }}" \
-                            -var="private_subnet_cidrs=${params.privateSubnetCidrBlock.split(',').collect { it.trim() }}"
+                            -var="public_subnet_cidrs=[${params.publicSubnetCidrBlock.split(',').collect { it.trim() }}]" \
+                            -var="private_subnet_cidrs=[${params.privateSubnetCidrBlock.split(',').collect { it.trim() }}]"
                         terraform show -no-color tfplan > tfplan.txt
                         """
 
