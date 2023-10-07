@@ -108,6 +108,7 @@ resource "aws_route" "public_internet_gateway" {
   route_table_id          = aws_route_table.public.id
   destination_cidr_block  = "0.0.0.0/0"
   gateway_id              = aws_internet_gateway.ik.id
+}
 
 # Add a route to each private subnet route table to route traffic through the corresponding NAT gateway
 resource "aws_route" "private_nat_gateway" {
