@@ -34,8 +34,8 @@ pipeline {
                         terraform init
                         terraform plan -out tfplan \
                             -var="vpc_cidr_block=${params.vpcCidrBlock}" \
-                            -var="public_subnet_cidrs=[${params.publicSubnetCidrBlock.split(',').collect { it.trim() }.join(', ')}]" \
-                            -var="private_subnet_cidrs=[${params.privateSubnetCidrBlock.split(',').collect { it.trim() }.join(', ')}]"
+                            -var="public_subnet_cidrs=${params.publicSubnetCidrBlock.split(',').collect { it.trim() }.join(', ')}" \
+                            -var="private_subnet_cidrs=${params.privateSubnetCidrBlock.split(',').collect { it.trim() }.join(', ')}"
                         terraform show -no-color tfplan > tfplan.txt
                         """
 
