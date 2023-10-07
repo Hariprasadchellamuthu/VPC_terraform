@@ -31,7 +31,7 @@ resource "aws_vpc" "my_vpc" {
   }
 }
 
-resource "aws_internet_gateway" "my_igw" {
+resource "aws_internet_gateway" "id" {
   vpc_id = aws_vpc.my_vpc.id
 }
 
